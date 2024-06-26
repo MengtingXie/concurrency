@@ -1,6 +1,6 @@
-use std::{sync::mpsc, thread};
-use std::time::Duration; 
 use anyhow::Result;
+use std::time::Duration;
+use std::{sync::mpsc, thread};
 
 const NUM_PRODUCERS: usize = 4;
 
@@ -11,9 +11,9 @@ struct Msg {
     value: usize,
 }
 
-fn main() -> Result<()>{
+fn main() -> Result<()> {
     let (tx, rx) = mpsc::channel();
-    
+
     //producers
     for i in 0..NUM_PRODUCERS {
         let tx = tx.clone();
@@ -30,16 +30,18 @@ fn main() -> Result<()>{
         42
     });
 
-    let secret = consumer.join().map_err(|e | anyhow::anyhow!("Thread join error: {:?}",e))?;
+    let secret = consumer
+        .join()
+        .map_err(|e| anyhow::anyhow!("Thread join error: {:?}", e))?;
     println!("secret: {:?}", secret);
     // thread::sleep(Duration::from_secs(5));
     Ok(())
 }
 
-fn producer(idx: usize, tx: mpsc::Sender<Msg>) -> Result<()>{
+fn producer(idx: usize, tx: mpsc::Sender<Msg>) -> Result<()> {
     loop {
         let value = rand::random::<usize>();
-        tx.send(Msg::new(idx,value))?;
+        tx.send(Msg::new(idx, value))?;
         let sleep_time = rand::random::<u64>() % 5;
         thread::sleep(Duration::from_millis(sleep_time as _));
         //random exit the producer
@@ -50,8 +52,6 @@ fn producer(idx: usize, tx: mpsc::Sender<Msg>) -> Result<()>{
     }
     Ok(())
 }
-
-
 
 impl Msg {
     fn new(id: usize, value: usize) -> Self {
